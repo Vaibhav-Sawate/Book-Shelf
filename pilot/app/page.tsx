@@ -2,6 +2,7 @@
 
 import {useState} from 'react';
 import type { FormEvent, ChangeEvent } from 'react';
+import Link from 'next/link'; // to make search results clickable
 
 //Define a type for our book data
 type Book={
@@ -90,14 +91,17 @@ export default function Home() {
       </button>
     </form>
 
-
+        {/* //here we will show results, loading and error */}
     <div className="mt-10 text-left">
       {loading && <p className='text-center'>Loading...</p>}
       {error && <p className='text-cneter text-red-500'>{error}</p>}
       {results.length>0 &&(
         <ul className='space-y-4'>
           {results.map((book) => (
-            <li key={book.id} className='flex p-4 bg-white border rounded-md shadow-sm gap-4 items-start'>
+
+            //Wrap the <li> in a Link to make it clickable link to book details page
+            <Link href ={`/book/${book.id}`} key={book.id}>
+              <li key={book.id} className='flex p-4 bg-white border rounded-md shadow-sm gap-4 items-start'>
               <img src= {book.volumeInfo.imageLinks?.thumbnail || 'https://via.placeholder.com/128x192?text=No+Cover'}
                     alt = {`Cover of ${book.volumeInfo.title}`}
                     className='w-20 shadow-md'
@@ -109,8 +113,8 @@ export default function Home() {
                   {book.volumeInfo.description?.substring(0, 150)}....
                 </p>
               </div>
-
-            </li>
+              </li>
+            </Link>        
           ))}
         </ul>
       )}
