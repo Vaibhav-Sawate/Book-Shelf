@@ -3,13 +3,13 @@
 "use client";
 
 
-import { useRouter } from "next/dist/client/components/navigation";
+import { useRouter } from "next/navigation";
 import { SetStateAction, useEffect, useState } from "react";
-import { supabase } from "../../utils/supabaseClient";
+import { supabase } from "../utils/supabaseClient";
 import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Auth } from "@supabase/auth-ui-react";
 
-export default function loginPage(){
+export default function LoginPage(){
     const router = useRouter();
     const [session, setSession] = useState(null);
 
@@ -24,7 +24,7 @@ export default function loginPage(){
 
         //Listen for changes
         const{
-            data: { subsciption}, 
+            data: { subscription}, 
         } = supabase.auth.onAuthStateChange((_event: any, session: SetStateAction<null>) =>{
             setSession(session);
             if(session){
@@ -32,7 +32,7 @@ export default function loginPage(){
         }
     });
      
-    return() => subsciption.unsubscribe();
+    return() => subscription.unsubscribe();
     }, [router]);
 
     if(session){
