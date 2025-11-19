@@ -7,7 +7,7 @@
 // incase you see the "type error" for fetch in nextjs 13 server component
 //the vscode just wants to make sure you are using ts correctly
 import { get } from "http";
-
+import ReviewForm from "@/components/ReviewForm";
 
 
 //It fetched data for one specific book
@@ -39,6 +39,11 @@ export default async function BookDetailsPage({ params }) {
         return(
             <div className="flex justify-center min-h-screen py-10 bg-gray-50">
                 <main className="w-full max-w-4xl p-8 bg-white rounded-lg shadow-lg">
+                    
+                    {/* Book Cover & Info Section */}
+                    
+                    
+
                     <div className="flex flex-col md:flex-row gap-8">
 
                         {/* //Book Cover */}
@@ -61,13 +66,19 @@ export default async function BookDetailsPage({ params }) {
                                 <p>Pages: {info.pageCount}</p>
                             </div>
 
-                            {/* //description */}
+
+                {/* //description */}
+
                             <div className="mt-6 prose">
                                 <h3 className="text-lg font-semibold">Descriptions</h3>
 
                                 {/* //Render description as HTML from google */}
                                 <div dangerouslySetInnerHTML={{ __html: info.description || 'No description available'}}/>
 
+                            </div>
+
+                            <div className="mt-12 border-t pt-8">
+                                <ReviewForm bookId={bookId} />
                             </div>
                         </div>
 
