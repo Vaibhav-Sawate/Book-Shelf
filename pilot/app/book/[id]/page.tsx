@@ -8,6 +8,7 @@
 //the vscode just wants to make sure you are using ts correctly
 import { get } from "http";
 import ReviewForm from "@/components/ReviewForm";
+import { supabase } from "../../utils/supabaseClient";
 
 
 //It fetched data for one specific book
@@ -27,23 +28,49 @@ async function getBookDetails(bookId){
     return book;
 }
 
+//To fetch the Reviews for the book from supabase
+async function getBookReviews(bookId){
+    const {data, error} = await supabase
+    .from('reviews')
+    // .select('*, profiles(username, display_name)')
+    .select('id, created_at, rating, review_text, user_id')
+    .eq('book_id', bookId)
+    .order('created_at', {ascending: false});
+
+    if(error){
+        console.error('Error fetching reviews:', error);
+        return [];
+    }
+
+    return data;
+}
+
+
+
+
 //THe main component for the book details page
 
 export default async function BookDetailsPage({ params }) {
     const resolvedParams= await params;
     const bookId = resolvedParams.id;  //from the folder name [id]
 
+
     try {
-        const book = await getBookDetails(bookId);
+        // const book = await getBookDetails(bookId);
+        const [book, reviews] = await Promise.all([
+            getBookDetails(bookId),
+            getBookReviews(bookId)
+        ]);
+
         const info = book.volumeInfo;
+
+        
         return(
             <div className="flex justify-center min-h-screen py-10 bg-gray-50">
                 <main className="w-full max-w-4xl p-8 bg-white rounded-lg shadow-lg">
                     
                     {/* Book Cover & Info Section */}
-                    
-                    
-
+                                       
                     <div className="flex flex-col md:flex-row gap-8">
 
                         {/* //Book Cover */}
@@ -77,8 +104,41 @@ export default async function BookDetailsPage({ params }) {
 
                             </div>
 
+                    
+                    
                             <div className="mt-12 border-t pt-8">
+                                {/* //Review Submssion Form */}
                                 <ReviewForm bookId={bookId} />
+
+                                {/* //Display Review Sections */}
+                                <h2 className="text-2xl font-bold pb-2 text-gray-800 mb-6 mt-10">User Reviews ({reviews.length})</h2>
+
+                                <div className="space-y-6">
+                                    {reviews.length >0? (
+                                        reviews.map((review) => (
+                                            <div key= {review.id} className="p-4 border rounded-lg bg-gray-50 shadow-sm">
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <p className="text-sm font-semibold text-gray-800">
+
+                                                        {/* /Display UserEmail/Name */}
+                                                        By: {review.profiles?.display_name || review.profiles?.username || review.user_id || 'Anonymous'}
+
+                                                    </p>
+                                                    <p className="text-xs text-gray-500">
+                                                        {new Date(review.created_at).toLocaleDateString()}                                                        
+                                                    </p>
+                                                </div>
+                                                <div className="text-yellow-500 mb-2">
+                                                    {`⭐`.repeat(review.rating)}{`☆`.repeat(5 - review.rating)}
+                                                </div>
+                                                <p className="text-gray-700">{review.review_text}</p>
+                                            </div>
+                                        ))
+                                    ) : (
+                                        <p className="text-gray-500 text-center">No reviews yet. Be the first to review this book!</p>
+                                    )}
+                                </div>
+                            
                             </div>
                         </div>
 
@@ -90,7 +150,7 @@ export default async function BookDetailsPage({ params }) {
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         return(
             <div className="flex justify-center items-center min-h-screen">
-                <h1 className="text-red-500 text-xl">Error loading book details: {(error as Error).message}</h1>
+                <h1 className="text-red-500 text-xl">Error loading book details: {errorMessage}</h1>
             </div>
         );
     }

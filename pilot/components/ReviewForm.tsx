@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { supabase } from "@/app/utils/supabaseClient";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 
 export default function ReviewForm({bookId}: {bookId: string}) {
+    const router = useRouter();
     const [user, setUser] = useState<any>(null);
     const [rating, setRating] = useState(5);
     const [reviewText, setReviewText] = useState("");
@@ -50,6 +52,8 @@ export default function ReviewForm({bookId}: {bookId: string}) {
     else{
         setMessage("Review submitted successfully! Reload to see your review.");
         setReviewText("");
+
+        router.refresh();
     }
 
     };
